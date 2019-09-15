@@ -1,0 +1,142 @@
+---
+title: "DATA 607 Assignment 3"
+author: "Fan Xu"
+date: "9/14/2019"
+output:
+  pdf_document:
+        extra_dependencies: ["geometry", "multicol", "multirow"]
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_collapsed: yes
+    toc_float: yes
+theme: lumen
+number_sections: yes
+toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 3 
+
+Copy the introductory example. The vector name stores the extracted names.
+
+[1] "Moe Szyslak"  "Burns, c. Montgomery"  "Rev. Timothy Lovejoy" <br/>
+
+[2] "Ned Flanders" "Simpson, Homer"        "Dr. Julius Hibbert" <br/>
+
+**(a). Use the tools of this chapter to rearrange the vector so that all elements conform to the standard.** <br/>
+
+first_name last_name.<br/>
+
+Answer:<br/>
+```{r Problem 3 #1}
+library(stringr)
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+names <- unlist(str_extract_all(raw.data,"[[:alpha:]., ]{2,}"))
+names
+#First remove possible title then switch first name and last name if last name come in first
+first_last <-str_replace(str_replace(names,"^\\w{2,3}\\. ",""),"(\\w+), (.+)","\\2 \\1")
+first_last
+```
+
+
+**(b). Construct a logical vector indicating whether a character has a title(i.e., Rev. and Dr.).**<br/>
+Answer:<br/>
+```{r Problem 3 #2}
+# use str_detect function to construct the logical (boolean) vector
+hastitle <- str_detect(names,"^\\w{2,3}\\. ")
+hastitle
+names[hastitle == TRUE]
+```
+
+
+
+**(c). Construct a logical vector indicating whether a character has a second name.**<br/>
+Answer:<br/>
+```{r Problem 3 #3}
+#again use str_detect function to construct the logical (boolean) vector
+#we can locate the character who has a second name from the original name list 
+has2ndname1<-str_detect(names, "[:upper:]. ")
+has2ndname1
+names[has2ndname1 == TRUE]
+
+#or we can locate the character from the ordered name list from Problem 3.1
+has2ndname2 <-str_detect(first_last, ".+ .+ .+")
+has2ndname2
+first_last[has2ndname2 == TRUE]
+```
+
+# Problem 4 
+**Describe the types of strings that conform to the following regular expressions and
+construct an example that is matched by the regular expression.**<br/>
+
+
+**(a) [0-9]+\\$ <br/>**
+Answer:<br>
+The strings that conform to (a) are with one or more digits plus one dollar sign. "[0-9]" means to match only number 0 to 9. "+" means match the preceding item one or more times, which refer to [0-9] here. The 2 backslashes before "$" means to treat the dollar sign as a character instead of a metacharacter.
+``` {r Problem 4 (a)}
+str_detect("A12390$abc", "[0-9]+\\$")
+str_extract("A12390$abc", "[0-9]+\\$")
+```
+
+
+**(b) \\b[a-z]{1,4}\\b** <br/>
+Answer:<br>
+The strings that conform to (b) are with a word of 1 to 4 lower case letters and empty string at either edge of this word. "\\b" means empty string at either side of a word, "[a-z]" means to match all lower case letters, "{1,4}" means to match the preceding item between 1 to 4 times.
+``` {r Problem 4 (b)}
+str_detect("123 abcd ABC", "\\b[a-z]{1,4}\\b")
+str_extract("123 abcd ABC", "\\b[a-z]{1,4}\\b")
+```
+
+
+(c) .\*?\\.txt$ <br/>
+Answer:<br/>
+The string that conform to (c) are any strings that contain ".txt" at the end. "." means to match any character except the new line indicator "\n". "*" means to match the preceding item 0 or more times. "?" means the preceding item is optional and to matches at most one time. The double backslashes before "." treat the period sign as an character steadn of a metacharacter. the "$" before ".txt" means the pattern ".txt" only exists at the end of the string if matched.
+``` {r Problem 4 (c)}
+str_detect("abcd123.txtcdfg456.txt", ".*?\\.txt$")
+str_extract("abcd123.txtcdfg456.txt", ".*?\\.txt$")
+```
+
+
+**(d) \\d{2}/\\d{2}/\\d{4}** <br/>
+Answer:<br>
+The string that conform to (d) contain digits and slash sign "/" conbination of pattern like date format "00/00/0000". "\\d" means to match digits 0 to 9.
+``` {r Problem 4 (d)}
+str_detect("Today is 19/19/1919 do you believe?", "\\d{2}/\\d{2}/\\d{4}")
+str_extract("Today is 19/19/1919 do you believe?", "\\d{2}/\\d{2}/\\d{4}")
+```
+
+
+**(e) <(.+?)>.+?</\\1>** <br>
+Answer:<br>
+the string that conform to (e) contain patterns like start tags and end tags in HTML OR XML, and all content in between. "." means to match any character except the new line indicator "\n". "+" means to match the preceding item last least 1 time. "?" means the preceding item is optional and to matches at most one time. the parenthesis "()" performs a grouping function and enables back referencing using \\N where N is an integer. "//1" back references to the first group content (here the only group) matched by ".+?"
+``` {r Problem 4 (e)}
+str_detect("abcde<tagname>xxx11223344aabbcc</tagname>fghij", "<(.+?)>.+?</\\1>")
+str_extract("abcde<tagname>xxx11223344aabbcc</tagname>fghij", "<(.+?)>.+?</\\1>")
+```
+
+# Problem 9
+
+**The following code hides a secret message. Crack it with R and regular expressions.
+Hint: Some of the characters are more revealing than others! The code snippet is also
+available in the materials at www.r-datacollection.com.** <br/>
+
+clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+
+``` {r Problem 9}
+code <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+#Extract all upper case letters and punctuation marks
+decode <- unlist(str_extract_all(code, "[[:upper:][:punct:]]"))
+decode
+#make it nicer :)
+str_replace_all(str_c(c(decode,"!!"), collapse= ""),"\\."," ")
+```
